@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyFlow &bull; University Study Task Tracker</title>
+  <meta name="description" content="A clean and simple study task tracker for university students to manage coursework, deadlines, and study goals.">
+  
+  <!-- Google Fonts for clean, modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Top Navigation / Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <!-- Graduation Cap SVG Icon -->
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">StudyFlow</h1>
+          <p class="brand-subtitle">University Study &amp; Assignment Tracker</p>
+        </div>
+      </div>
+      <div class="header-date" id="currentDateDisplay" aria-label="Today's date">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- Statistics Overview Cards -->
+    <section class="stats-grid" aria-label="Study task statistics">
+      <div class="stat-card stat-total">
+        <div class="stat-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Total Tasks</span>
+          <span class="stat-value" id="totalCount">0</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-pending">
+        <div class="stat-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Pending</span>
+          <span class="stat-value" id="pendingCount">0</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-completed">
+        <div class="stat-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Completed</span>
+          <span class="stat-value" id="completedCount">0</span>
+        </div>
+      </div>
+
+      <div class="stat-card stat-overdue">
+        <div class="stat-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <div class="stat-info">
+          <span class="stat-label">Overdue</span>
+          <span class="stat-value" id="overdueCount">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace: Form and Task List -->
+    <div class="workspace-grid">
+      
+      <!-- Left Column: Add / Edit Task Form -->
+      <section class="card form-card" aria-labelledby="formHeading">
+        <div class="card-header">
+          <h2 id="formHeading" class="card-title">Add New Task</h2>
+          <span id="formBadge" class="form-badge">New</span>
+        </div>
+
+        <!-- Accessible Validation Feedback -->
+        <div id="formAlert" class="form-alert" role="alert" style="display: none;"></div>
+
+        <form id="taskForm" novalidate>
+          <!-- Hidden input storing id when in edit mode -->
+          <input type="hidden" id="taskIdInput">
+
+          <!-- Task Title Input -->
+          <div class="form-group">
+            <label for="taskTitle" class="form-label">
+              Task Title <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="taskTitle" 
+              class="form-control" 
+              placeholder="e.g. Read Chapter 4 &amp; write summary" 
+              required
+              autocomplete="off"
+            >
+            <small class="form-hint">Briefly state what needs to be accomplished.</small>
+          </div>
+
+          <!-- Subject / Course Input -->
+          <div class="form-group">
+            <label for="taskSubject" class="form-label">
+              Subject / Course <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="taskSubject" 
+              list="subjectSuggestions"
+              class="form-control" 
+              placeholder="e.g. Computer Science, Calculus, Biology" 
+              required
+              autocomplete="off"
+            >
+            <!-- Helpful common suggestions for students -->
+            <datalist id="subjectSuggestions">
+              <option value="Computer Science">
+              <option value="Mathematics / Calculus">
+              <option value="Physics">
+              <option value="Chemistry">
+              <option value="Biology">
+              <option value="Economics">
+              <option value="Psychology">
+              <option value="Literature">
+              <option value="History">
+              <option value="Business Management">
+            </datalist>
+            <small class="form-hint">Type your course code or subject name.</small>
+          </div>
+
+          <!-- Deadline Date Input -->
+          <div class="form-group">
+            <label for="taskDeadline" class="form-label">
+              Deadline Date <span class="required" aria-hidden="true">*</span>
+            </label>
+            <input 
+              type="date" 
+              id="taskDeadline" 
+              class="form-control" 
+              required
+            >
+            <small class="form-hint">Tasks past this date become overdue until completed.</small>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="form-actions">
+            <button type="submit" id="submitBtn" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span id="submitBtnText">Add Task</span>
+            </button>
+            <button type="button" id="cancelEditBtn" class="btn btn-secondary" style="display: none;">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Task List & Filters -->
+      <section class="card list-card" aria-labelledby="listHeading">
+        <div class="card-header list-header">
+          <div>
+            <h2 id="listHeading" class="card-title">Study Tasks</h2>
+            <p class="card-subtitle">Keep track of your academic deadlines</p>
+          </div>
+
+          <!-- Filter Navigation Tabs -->
+          <div class="filter-group" role="tablist" aria-label="Filter study tasks">
+            <button type="button" class="filter-tab active" data-filter="all" role="tab" aria-selected="true">
+              All <span class="tab-badge" id="filterCountAll">0</span>
+            </button>
+            <button type="button" class="filter-tab" data-filter="pending" role="tab" aria-selected="false">
+              Pending <span class="tab-badge" id="filterCountPending">0</span>
+            </button>
+            <button type="button" class="filter-tab" data-filter="completed" role="tab" aria-selected="false">
+              Completed <span class="tab-badge" id="filterCountCompleted">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Task List Items Container -->
+        <ul id="taskList" class="task-list" aria-live="polite">
+          <!-- Dynamically populated by script.js -->
+        </ul>
+
+        <!-- Empty State (Shown when no tasks match current filter) -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div class="empty-icon" aria-hidden="true">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <h3 id="emptyStateTitle" class="empty-title">No tasks found</h3>
+          <p id="emptyStateMessage" class="empty-description">
+            You don't have any tasks right now. Fill in the form on the left to add your first study task!
+          </p>
+          <button type="button" id="addSampleTasksBtn" class="btn btn-outline" style="margin-top: 1rem;">
+            Load Example Tasks
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Delete Confirmation Modal Dialog -->
+  <div id="deleteModal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon-warning" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            <line x1="10" y1="11" x2="10" y2="17"></line>
+            <line x1="14" y1="11" x2="14" y2="17"></line>
+          </svg>
+        </div>
+        <div>
+          <h3 id="modalTitle" class="modal-title">Delete Task?</h3>
+          <p class="modal-subtitle">Are you sure you want to delete this study task? This action cannot be undone.</p>
+        </div>
+      </div>
+      <div class="modal-task-preview">
+        <span class="preview-label">Task:</span>
+        <strong id="modalTaskTitle" class="modal-task-name"></strong>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="cancelDeleteBtn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Delete Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple Footer -->
+  <footer class="app-footer">
+    <p>StudyFlow &bull; Built with HTML, CSS, and Vanilla JavaScript for students.</p>
+  </footer>
+
+  <!-- JavaScript Application Logic -->
+  <script src="script.js"></script>
+</body>
+</html>

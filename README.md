@@ -16,11 +16,15 @@
 * 🗑️ **Safe Deletion**: Accessible confirmation modal dialog displaying the task title before permanent removal.
 * ⏰ **Overdue Detection**: Automatically flags overdue pending tasks once their deadline date has passed, featuring a prominent red accent and alert badge.
 * 📊 **Live Academic Statistics**: Real-time summary cards displaying **Total**, **Pending**, **Completed**, and **Overdue** task counters.
-* 🔍 **Smart Filters**: Easily toggle between **All**, **Pending**, and **Completed** tasks with dynamic count badges on each tab.
+* 🔍 **Smart Filters & Real-time Search**: Easily toggle between **All**, **Pending**, and **Completed** tasks or instantly filter tasks by keyword as you type.
+* 🔀 **Multi-Criteria Sorting**: Sort tasks by Deadline (Earliest / Latest), Title (A-Z), or Course Subject (A-Z).
 * 💾 **LocalStorage Persistence**: Automatically saves and restores tasks upon browser reload without any external database.
+* 📦 **Data Backup (Export & Import)**: One-click export to download a `.json` backup of your coursework or import existing task datasets.
+* 🧹 **Batch Clean-up**: Dedicated "Clear Completed" button to archive and prune completed assignments.
 * 🛡️ **Safe Text Rendering**: All user-entered strings are safely handled via `textContent` to prevent script and HTML injection (XSS).
 * 📱 **Responsive & Modern Design**: Clean light layout with royal blue accents, rounded cards, smooth hover micro-interactions, and mobile-friendly controls.
 * 💡 **Empty State & Sample Tasks**: Clean empty state graphics with a one-click button to load sample academic tasks.
+
 
 ---
 

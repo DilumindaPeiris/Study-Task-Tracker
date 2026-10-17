@@ -25,6 +25,12 @@ let tasks = [];
 // Current filter view: 'all' | 'pending' | 'completed'
 let currentFilter = 'all';
 
+// Search filter query string
+let searchQuery = '';
+
+// Sort order: 'deadline-asc' | 'deadline-desc' | 'title-asc' | 'subject-asc'
+let sortBy = 'deadline-asc';
+
 // Tracks the ID of the task currently being edited (null when adding a new task)
 let editingTaskId = null;
 
@@ -62,6 +68,11 @@ const filterCountAll = document.getElementById('filterCountAll');
 const filterCountPending = document.getElementById('filterCountPending');
 const filterCountCompleted = document.getElementById('filterCountCompleted');
 const filterTabs = document.querySelectorAll('.filter-tab');
+
+// Search & Sort Elements
+const taskSearchInput = document.getElementById('taskSearchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const taskSortSelect = document.getElementById('taskSortSelect');
 
 // Current date display in header
 const currentDateDisplay = document.getElementById('currentDateDisplay');
@@ -506,12 +517,35 @@ function renderTasks() {
   taskList.innerHTML = '';
 
   // Filter tasks based on the active tab
-  let filteredTasks = tasks;
+  let filteredTasks = [...tasks];
   if (currentFilter === 'pending') {
-    filteredTasks = tasks.filter(t => !t.completed);
+    filteredTasks = filteredTasks.filter(t => !t.completed);
   } else if (currentFilter === 'completed') {
-    filteredTasks = tasks.filter(t => t.completed);
+    filteredTasks = filteredTasks.filter(t => t.completed);
   }
+
+  // Filter tasks by search query (checks title and course subject)
+  if (searchQuery.trim() !== '') {
+    const query = searchQuery.trim().toLowerCase();
+    filteredTasks = filteredTasks.filter(t => 
+      t.title.toLowerCase().includes(query) || 
+      t.subject.toLowerCase().includes(query)
+    );
+  }
+
+  // Sort tasks based on selected sort option
+  filteredTasks.sort((a, b) => {
+    if (sortBy === 'deadline-asc') {
+      return a.deadline.localeCompare(b.deadline);
+    } else if (sortBy === 'deadline-desc') {
+      return b.deadline.localeCompare(a.deadline);
+    } else if (sortBy === 'title-asc') {
+      return a.title.localeCompare(b.title);
+    } else if (sortBy === 'subject-asc') {
+      return a.subject.localeCompare(b.subject);
+    }
+    return 0;
+  });
 
   // Handle Empty State
   if (filteredTasks.length === 0) {
@@ -522,6 +556,10 @@ function renderTasks() {
       emptyStateTitle.textContent = 'No study tasks yet';
       emptyStateMessage.textContent = 'Add your first task above with a subject and deadline to stay on top of your semester!';
       addSampleTasksBtn.style.display = 'inline-flex';
+    } else if (searchQuery.trim() !== '') {
+      emptyStateTitle.textContent = 'No matching tasks';
+      emptyStateMessage.textContent = `No study tasks matched "${searchQuery}". Try a different keyword or clear your search.`;
+      addSampleTasksBtn.style.display = 'none';
     } else if (currentFilter === 'pending') {
       emptyStateTitle.textContent = 'All caught up!';
       emptyStateMessage.textContent = 'You have no pending tasks right now. Great job!';
@@ -755,6 +793,36 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load sample tasks button on empty state
   if (addSampleTasksBtn) {
     addSampleTasksBtn.addEventListener('click', loadSampleTasks);
+  }
+
+  // Search input handler
+  if (taskSearchInput) {
+    taskSearchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value;
+      if (clearSearchBtn) {
+        clearSearchBtn.style.display = searchQuery ? 'block' : 'none';
+      }
+      renderTasks();
+    });
+  }
+
+  // Clear search button handler
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener('click', () => {
+      taskSearchInput.value = '';
+      searchQuery = '';
+      clearSearchBtn.style.display = 'none';
+      taskSearchInput.focus();
+      renderTasks();
+    });
+  }
+
+  // Sort dropdown handler
+  if (taskSortSelect) {
+    taskSortSelect.addEventListener('change', (e) => {
+      sortBy = e.target.value;
+      renderTasks();
+    });
   }
 
   // Delete modal event listeners

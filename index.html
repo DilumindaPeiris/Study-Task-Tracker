@@ -211,6 +211,36 @@
           </div>
         </div>
 
+        <!-- Controls Bar: Search & Sort -->
+        <div class="list-controls-bar">
+          <div class="search-input-wrapper">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="search-icon" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              id="taskSearchInput" 
+              class="search-control" 
+              placeholder="Search tasks by title or course..." 
+              aria-label="Search study tasks"
+            >
+            <button type="button" id="clearSearchBtn" class="clear-search-btn" title="Clear search" style="display: none;" aria-label="Clear search">
+              &times;
+            </button>
+          </div>
+
+          <div class="sort-wrapper">
+            <label for="taskSortSelect" class="sort-label">Sort:</label>
+            <select id="taskSortSelect" class="sort-select" aria-label="Sort tasks">
+              <option value="deadline-asc">Deadline (Earliest)</option>
+              <option value="deadline-desc">Deadline (Latest)</option>
+              <option value="title-asc">Title (A-Z)</option>
+              <option value="subject-asc">Subject (A-Z)</option>
+            </select>
+          </div>
+        </div>
+
         <!-- Task List Items Container -->
         <ul id="taskList" class="task-list" aria-live="polite">
           <!-- Dynamically populated by script.js -->

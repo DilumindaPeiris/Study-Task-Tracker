@@ -130,6 +130,48 @@ body {
   border: 1px solid var(--blue-100);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.header-backup-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.775rem;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border-light);
+}
+
+.btn-ghost:hover {
+  background-color: var(--blue-50);
+  color: var(--blue-600);
+  border-color: var(--blue-200);
+}
+
+.btn-ghost.text-danger:hover {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border-color: #fecaca;
+}
+
+.list-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 /* --------------------------------------------------------------------------
    4. Main Container & Stats Overview
    -------------------------------------------------------------------------- */

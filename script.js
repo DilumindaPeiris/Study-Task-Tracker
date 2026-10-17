@@ -77,6 +77,11 @@ const taskSortSelect = document.getElementById('taskSortSelect');
 // Current date display in header
 const currentDateDisplay = document.getElementById('currentDateDisplay');
 
+// Backup & Batch Action Elements
+const exportBtn = document.getElementById('exportBtn');
+const importFileInput = document.getElementById('importFileInput');
+const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+
 // Delete Confirmation Modal
 const deleteModal = document.getElementById('deleteModal');
 const modalTaskTitle = document.getElementById('modalTaskTitle');
@@ -504,6 +509,11 @@ function updateStatistics() {
   } else {
     overdueCardEl.classList.remove('has-overdue');
   }
+
+  // Show "Clear Completed" button if there are completed tasks
+  if (clearCompletedBtn) {
+    clearCompletedBtn.style.display = completed > 0 ? 'inline-flex' : 'none';
+  }
 }
 
 /**
@@ -758,6 +768,90 @@ function loadSampleTasks() {
 }
 
 // ==========================================================================
+// 8b. Task Backup (Export & Import) & Batch Actions
+// ==========================================================================
+
+/**
+ * Exports current study tasks into a downloadable JSON file.
+ */
+function exportTasksToJson() {
+  if (tasks.length === 0) {
+    alert('No tasks available to export. Add some tasks first!');
+    return;
+  }
+
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(tasks, null, 2));
+  const downloadAnchor = document.createElement('a');
+  const dateStamp = new Date().toISOString().slice(0, 10);
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `studyflow_backup_${dateStamp}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+/**
+ * Imports tasks from an uploaded JSON file, validating schema and merging tasks.
+ * 
+ * @param {Event} event 
+ */
+function importTasksFromJson(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if (Array.isArray(parsed)) {
+        const validTasks = parsed.filter(t => t && t.title && t.subject);
+        if (validTasks.length === 0) {
+          alert('The selected file does not contain valid study tasks.');
+          return;
+        }
+
+        const confirmed = window.confirm(`Import ${validTasks.length} task(s)? This will add them to your task tracker.`);
+        if (confirmed) {
+          validTasks.forEach(task => {
+            // Assign unique ID if duplicate exists
+            if (!task.id || tasks.some(existing => existing.id === task.id)) {
+              task.id = 'task_' + Date.now() + '_' + Math.floor(Math.random() * 10000);
+            }
+            tasks.unshift(task);
+          });
+
+          saveTasksToStorage();
+          renderTasks();
+        }
+      } else {
+        alert('Invalid format: Expected a JSON array of tasks.');
+      }
+    } catch (err) {
+      console.error('Import error:', err);
+      alert('Failed to read the file. Please ensure it is a valid JSON file.');
+    } finally {
+      event.target.value = ''; // Reset input to allow re-uploading the same file
+    }
+  };
+  reader.readAsText(file);
+}
+
+/**
+ * Removes all completed tasks after asking for confirmation.
+ */
+function clearCompletedTasks() {
+  const completedCount = tasks.filter(t => t.completed).length;
+  if (completedCount === 0) return;
+
+  const confirmed = window.confirm(`Are you sure you want to clear all ${completedCount} completed task(s)?`);
+  if (!confirmed) return;
+
+  tasks = tasks.filter(t => !t.completed);
+  saveTasksToStorage();
+  renderTasks();
+}
+
+// ==========================================================================
 // 9. Event Listeners & Application Initialization
 // ==========================================================================
 
@@ -823,6 +917,19 @@ document.addEventListener('DOMContentLoaded', () => {
       sortBy = e.target.value;
       renderTasks();
     });
+  }
+
+  // Backup export / import handlers
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportTasksToJson);
+  }
+  if (importFileInput) {
+    importFileInput.addEventListener('change', importTasksFromJson);
+  }
+
+  // Clear completed tasks handler
+  if (clearCompletedBtn) {
+    clearCompletedBtn.addEventListener('click', clearCompletedTasks);
   }
 
   // Delete modal event listeners
